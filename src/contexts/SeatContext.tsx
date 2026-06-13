@@ -13,21 +13,21 @@ import type {
   SeatHeatStat,
 } from '../types';
 import {
-  mockGetSeats,
-  mockCheckIn,
-  mockCheckOut,
-  mockSetAway,
-  mockSetReturn,
-  mockAutoRelease,
-  mockUpdateLastActivity,
-  mockGetLogs,
-  mockGetWaitlist,
-  mockJoinWaitlist,
-  mockRemoveFromWaitlist,
-  mockAdminReleaseSeat,
-  mockInsertLog,
+  getSeats,
+  checkIn as dbCheckIn,
+  checkOut as dbCheckOut,
+  setAway as dbSetAway,
+  setReturn as dbSetReturn,
+  autoRelease as dbAutoRelease,
+  updateLastActivity as dbUpdateLastActivity,
+  getLogs,
+  getWaitlist,
+  joinWaitlist as dbJoinWaitlist,
+  removeFromWaitlist as dbRemoveFromWaitlist,
+  adminReleaseSeat as dbAdminReleaseSeat,
+  insertLog,
   subscribeToTable,
-} from '../lib/mockDb';
+} from '../lib/db';
 import { useAuth } from './AuthContext';
 import { useDemoMode } from './DemoContext';
 
@@ -85,15 +85,15 @@ export const SeatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       : null;
 
   // ── Loaders ────────────────────────────────────────────────────────────────
-  const refreshAll = useCallback(() => {
-    setSeats(mockGetSeats());
-    setLogs(mockGetLogs(100));
-    setWaitlist(mockGetWaitlist());
-    computeHeatStats();
+  const refreshAll = useCallback(async () => {
+    setSeats(await getSeats());
+    setLogs(await getLogs(100));
+    setWaitlist(await getWaitlist());
+    await computeHeatStats();
   }, []);
 
-  function computeHeatStats() {
-    const allLogs = mockGetLogs(500);
+  async function computeHeatStats() {
+    const allLogs = await getLogs(500);
     const countMap: Record<string, number> = {};
     allLogs.forEach(l => {
       if (l.seat_code && l.action === 'CHECK_IN') {
@@ -101,7 +101,8 @@ export const SeatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     });
     const max = Math.max(...Object.values(countMap), 1);
-    const stats: SeatHeatStat[] = mockGetSeats().map(s => ({
+    const seatsData = await getSeats();
+    const stats: SeatHeatStat[] = seatsData.map(s => ({
       seat_code: s.seat_code,
       checkins: countMap[s.seat_code] ?? 0,
       intensity: (countMap[s.seat_code] ?? 0) / max,
@@ -113,20 +114,13 @@ export const SeatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     refreshAll();
 
     const unsubs = [
-      subscribeToTable<Seat>('seats', () => {
-        setSeats(mockGetSeats());
-      }),
-      subscribeToTable<SeatLog>('seat_logs', () => {
-        setLogs(mockGetLogs(100));
-        computeHeatStats();
-      }),
-      subscribeToTable<WaitlistEntry>('waitlist', () => {
-        setWaitlist(mockGetWaitlist());
-      }),
+      subscribeToTable('seats', refreshAll),
+      subscribeToTable('seat_logs', refreshAll),
+      subscribeToTable('waitlist', refreshAll),
     ];
 
     return () => unsubs.forEach(u => u());
-  }, []);
+  }, [refreshAll]);
 
   // ── Away Auto-Release Timer ────────────────────────────────────────────────
   useEffect(() => {
@@ -151,10 +145,10 @@ export const SeatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, [myActiveSeat?.status, myActiveSeat?.away_start_time, awayTimeoutMs]);
 
-  function triggerAwayAutoRelease() {
+  async function triggerAwayAutoRelease() {
     if (!myActiveSeat || !user?.student) return;
-    mockAutoRelease(myActiveSeat.id, myActiveSeat.seat_code, user.student.name, false);
-    refreshAll();
+    await dbAutoRelease(myActiveSeat.id, myActiveSeat.seat_code, user.student.name, false);
+    await refreshAll();
   }
 
   // ── Still Here Timer ───────────────────────────────────────────────────────
@@ -170,12 +164,12 @@ export const SeatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const schedulePrompt = (delay: number) => {
         stillHereTimerRef.current = setTimeout(() => {
           setShowStillHerePrompt(true);
-          graceTimerRef.current = setTimeout(() => {
+          graceTimerRef.current = setTimeout(async () => {
             // User ignored prompt – auto-release
             setShowStillHerePrompt(false);
             if (myActiveSeat && user?.student) {
-              mockAutoRelease(myActiveSeat.id, myActiveSeat.seat_code, user.student.name, true);
-              refreshAll();
+              await dbAutoRelease(myActiveSeat.id, myActiveSeat.seat_code, user.student.name, true);
+              await refreshAll();
             }
           }, stillHereGraceMs);
         }, delay);
@@ -218,60 +212,60 @@ export const SeatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // ── Operations ────────────────────────────────────────────────────────────────
   const checkIn = useCallback(async (seatCode: string) => {
     if (!user?.student) throw new Error('Not logged in');
-    const allSeats = mockGetSeats();
+    const allSeats = await getSeats();
     const seat = allSeats.find(s => s.seat_code === seatCode);
     if (!seat) throw new Error(`Seat ${seatCode} not found.`);
-    mockCheckIn(seat.id, seatCode, user.student.id, user.student.name);
-    refreshAll();
+    await dbCheckIn(seat.id, seatCode, user.student.id, user.student.name);
+    await refreshAll();
   }, [user, refreshAll]);
 
   const checkOut = useCallback(async () => {
     if (!myActiveSeat || !user?.student) throw new Error('No active seat');
-    mockCheckOut(myActiveSeat.id, myActiveSeat.seat_code, user.student.name);
+    await dbCheckOut(myActiveSeat.id, myActiveSeat.seat_code, user.student.name);
     setShowStillHerePrompt(false);
-    refreshAll();
+    await refreshAll();
   }, [myActiveSeat, user, refreshAll]);
 
   const setAway = useCallback(async () => {
     if (!myActiveSeat || !user?.student) throw new Error('No active seat');
     if (myActiveSeat.status !== 'occupied') throw new Error('Can only go away from occupied seat');
-    mockSetAway(myActiveSeat.id, myActiveSeat.seat_code, user.student.name);
-    refreshAll();
+    await dbSetAway(myActiveSeat.id, myActiveSeat.seat_code, user.student.name);
+    await refreshAll();
   }, [myActiveSeat, user, refreshAll]);
 
   const setReturn = useCallback(async () => {
     if (!myActiveSeat || !user?.student) throw new Error('No active seat');
     if (myActiveSeat.status !== 'away') throw new Error('Not in away mode');
-    mockSetReturn(myActiveSeat.id, myActiveSeat.seat_code, user.student.name);
-    refreshAll();
+    await dbSetReturn(myActiveSeat.id, myActiveSeat.seat_code, user.student.name);
+    await refreshAll();
   }, [myActiveSeat, user, refreshAll]);
 
   const confirmStillHere = useCallback(async () => {
     if (!myActiveSeat || !user?.student) return;
     if (graceTimerRef.current) clearTimeout(graceTimerRef.current);
     setShowStillHerePrompt(false);
-    mockUpdateLastActivity(myActiveSeat.id);
-    refreshAll();
+    await dbUpdateLastActivity(myActiveSeat.id);
+    await refreshAll();
   }, [myActiveSeat, user, refreshAll]);
 
   const joinWaitlist = useCallback(async () => {
     if (!user?.student) throw new Error('Not logged in');
-    mockJoinWaitlist(user.student.id);
+    await dbJoinWaitlist(user.student.id);
     // Log a WAITLIST_JOIN event
-    const allSeats = mockGetSeats();
-    mockInsertLog(allSeats[0]?.id ?? 'wl', 'WAITLIST', 'WAITLIST_JOIN', { student_id: user.student.id }, user.student.name);
-    refreshAll();
+    const allSeats = await getSeats();
+    await insertLog(allSeats[0]?.id ?? 'wl', 'WAITLIST', 'WAITLIST_JOIN', { student_id: user.student.id }, user.student.name);
+    await refreshAll();
   }, [user, refreshAll]);
 
   const leaveWaitlist = useCallback(async () => {
     if (!user?.student) return;
-    mockRemoveFromWaitlist(user.student.id);
-    refreshAll();
+    await dbRemoveFromWaitlist(user.student.id);
+    await refreshAll();
   }, [user, refreshAll]);
 
   const adminRelease = useCallback(async (seatId: string, seatCode: string) => {
-    mockAdminReleaseSeat(seatId, seatCode);
-    refreshAll();
+    await dbAdminReleaseSeat(seatId, seatCode);
+    await refreshAll();
   }, [refreshAll]);
 
   return (

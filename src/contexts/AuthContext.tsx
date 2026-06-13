@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import type { Student, AuthUser } from '../types';
-import { mockUpsertStudent } from '../lib/mockDb';
+import { upsertStudent } from '../lib/db';
 
 interface AuthContextValue {
   user: AuthUser | null;
@@ -43,7 +43,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const roll = rollNumber.trim().toUpperCase();
     const trimmedName = name.trim();
     if (!roll || !trimmedName) throw new Error('Roll number and name are required.');
-    const student: Student = mockUpsertStudent(roll, trimmedName);
+    const student: Student = await upsertStudent(roll, trimmedName);
     const authUser: AuthUser = { role: 'student', student };
     setUser(authUser);
     localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(authUser));

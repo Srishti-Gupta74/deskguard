@@ -5,24 +5,6 @@ export const AmbientBackground: React.FC<{ variant?: 'student' | 'admin' | 'land
 }) => {
   const isStudent = variant === 'student';
 
-  const colors = {
-    student: {
-      blob1: 'rgba(168, 85, 247, 0.25)', // Vibrant Violet
-      blob2: 'rgba(236, 72, 153, 0.15)', // Pink
-      blob3: 'rgba(99, 102, 241, 0.2)', // Indigo Nebula
-    },
-    admin: {
-      blob1: 'rgba(79, 70, 229, 0.10)',
-      blob2: 'rgba(124, 58, 237, 0.07)',
-      blob3: 'rgba(99, 102, 241, 0.06)',
-    },
-    landing: {
-      blob1: 'rgba(139, 92, 246, 0.15)',
-      blob2: 'rgba(79, 70, 229, 0.10)',
-      blob3: 'rgba(167, 139, 250, 0.08)',
-    },
-  }[variant];
-
   // For the starry background in student mode
   const renderStars = () => {
     if (!isStudent) return null;

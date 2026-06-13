@@ -401,7 +401,9 @@ export const StudentDashboard: React.FC = () => {
                     {isAway ? breakMessages[breakMsgIndex] : (sessionDuration > 7200000 ? "Time to stretch your legs! 🌿" : sessionDuration > 3600000 ? "You're in the zone! 🔥" : "Focus mode active ✨")}
                   </div>
                   <div style={{ fontSize: 28, fontWeight: 900, color: '#f8fafc', marginTop: 4 }}>Desk {myActiveSeat?.seat_code ?? 'A3'}</div>
-                  <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 500, marginTop: 4 }}>Started 10:45 AM</div>
+                  <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 500, marginTop: 4 }}>
+                    Started {new Date(myActiveSeat?.check_in_time || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </div>
                 </div>
                 <div style={{ background: 'rgba(34,197,94,0.2)', border: '1px solid rgba(34,197,94,0.4)', padding: '4px 10px', borderRadius: 99, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <motion.div animate={{ opacity: [1, 0.4, 1] }} transition={{ repeat: Infinity, duration: 2 }} style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 8px #22c55e' }} />
@@ -490,8 +492,8 @@ export const StudentDashboard: React.FC = () => {
               {/* Bottom Stats */}
               <div style={{ display: 'flex', gap: 16, borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: 16 }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 600 }}>Session Time</div>
-                  <div style={{ fontSize: 18, fontWeight: 900, color: '#f8fafc', marginTop: 4 }}>02:14:55</div>
+                  <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 600 }}>Total Today</div>
+                  <div style={{ fontSize: 18, fontWeight: 900, color: '#f8fafc', marginTop: 4 }}>{formatDuration(sessionDuration + 7200000)}</div>
                 </div>
                 <div style={{ width: 1, background: 'rgba(255,255,255,0.05)' }} />
                 <div style={{ flex: 1 }}>
