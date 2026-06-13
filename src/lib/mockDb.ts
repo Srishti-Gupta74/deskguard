@@ -37,6 +37,14 @@ export function subscribeToTable<T>(table: string, fn: Listener<T>): () => void 
   };
 }
 
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', (e) => {
+    if (e.key === KEYS.seats) emit('seats', 'UPDATE', null);
+    if (e.key === KEYS.logs) emit('seat_logs', 'UPDATE', null);
+    if (e.key === KEYS.waitlist) emit('waitlist', 'UPDATE', null);
+  });
+}
+
 // ─── Seats ────────────────────────────────────────────────────────────────────
 function getSeats(): Seat[] {
   const raw = localStorage.getItem(KEYS.seats);
