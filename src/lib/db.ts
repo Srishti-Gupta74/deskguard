@@ -104,8 +104,7 @@ export async function getLogs(limit: number = 100): Promise<SeatLog[]> {
   return data.map((d: any) => ({
     id: d.id,
     seat_id: d.seat_id,
-    event_type: d.event_type as any,
-    action: d.action,
+    action: d.event_type as any,
     metadata: d.student_id ? { student_id: d.student_id, student_name: d.student_name } : {},
     timestamp: d.timestamp
   })) as SeatLog[];
