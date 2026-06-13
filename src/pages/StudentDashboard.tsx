@@ -135,6 +135,19 @@ export const StudentDashboard: React.FC = () => {
       {qrSeat && <QRCodeModal seatCode={qrSeat} onClose={() => setQrSeat(null)} />}
       <CursorTrail />
       <AmbientBackground variant="student" />
+      {/* FLOATING DEMO TOGGLE */}
+      <div style={{ position: 'fixed', bottom: 120, right: 24, zIndex: 9999, display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: 'rgba(15, 10, 30, 0.9)', border: '1px solid rgba(245, 158, 11, 0.4)', borderRadius: 100, backdropFilter: 'blur(20px)', boxShadow: '0 10px 40px rgba(0,0,0,0.5), 0 0 20px rgba(245, 158, 11, 0.2) inset' }}>
+        <span style={{ fontSize: 14, fontWeight: 800, color: isDemoMode ? '#f59e0b' : '#64748b' }}>Demo Mode</span>
+        <div 
+          onClick={() => {
+            toggleDemoMode();
+            window.location.reload();
+          }}
+          style={{ width: 50, height: 26, borderRadius: 13, background: isDemoMode ? '#f59e0b' : 'rgba(255,255,255,0.1)', position: 'relative', cursor: 'pointer', transition: 'background 0.3s' }}
+        >
+          <div style={{ position: 'absolute', top: 3, left: isDemoMode ? 27 : 3, width: 20, height: 20, borderRadius: '50%', background: '#fff', transition: 'left 0.3s', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }} />
+        </div>
+      </div>
       
       {/* STILL HERE PROMPT */}
       <AnimatePresence>
