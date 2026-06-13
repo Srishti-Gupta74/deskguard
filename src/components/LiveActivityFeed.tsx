@@ -58,7 +58,7 @@ export const LiveActivityFeed: React.FC<{ maxItems?: number; compact?: boolean }
       <div className="scrollbar-thin" style={{ flex: 1, overflowY: 'auto', paddingRight: 8, display: 'flex', flexDirection: 'column', gap: compact ? 6 : 8 }}>
         <AnimatePresence initial={false}>
           {displayLogs.map((log) => {
-            const cfg = ACTION_CONFIG[log.action];
+            const cfg = ACTION_CONFIG[log.action as LogAction] || { icon: <Zap size={13} />, bg: 'rgba(255,255,255,0.1)', text: '#fff', border: 'rgba(255,255,255,0.2)' };
             return (
               <motion.div
                 key={log.id}
