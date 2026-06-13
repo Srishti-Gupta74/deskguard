@@ -1,8 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { QRCodeCanvas } from 'qrcode.react';
-import { X, Download, QrCode, ScanLine } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { X, Download, QrCode } from 'lucide-react';
 
 interface QRCodeModalProps {
   seatCode: string;
@@ -10,7 +9,6 @@ interface QRCodeModalProps {
 }
 
 export const QRCodeModal: React.FC<QRCodeModalProps> = ({ seatCode, onClose }) => {
-  const navigate = useNavigate();
   const url = `${window.location.origin}/seat/${seatCode}`;
 
   const handleDownload = () => {
@@ -68,21 +66,12 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({ seatCode, onClose }) =
 
           <div className="flex gap-2">
             <button
-              onClick={() => {
-                onClose();
-                navigate(`/seat/${seatCode}`);
-              }}
-              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-bold transition-colors shadow-[0_0_20px_rgba(16,185,129,0.4)]"
-            >
-              <ScanLine size={16} />
-              Simulate Scan
-            </button>
-            <button
               onClick={handleDownload}
-              className="px-4 py-2.5 flex items-center justify-center rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium transition-colors"
+              className="flex-1 px-4 py-2.5 flex items-center justify-center gap-2 rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-sm font-bold transition-colors shadow-[0_0_20px_rgba(139,92,246,0.3)]"
               title="Download QR Code"
             >
               <Download size={16} />
+              Download QR
             </button>
             <button
               onClick={onClose}
