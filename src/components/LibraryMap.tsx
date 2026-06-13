@@ -68,11 +68,11 @@ const SPATIAL_LAYOUT: Record<string, { x: number; y: number }> = {
   'C3': { x: 28, y: 82 },
   'C4': { x: 36, y: 82 },
   'C5': { x: 44, y: 82 },
-  'C6': { x: 58, y: 82 },
-  'C7': { x: 66, y: 82 },
-  'C8': { x: 74, y: 82 },
-  'C9': { x: 82, y: 82 },
-  'C10': { x: 90, y: 82 },
+  'C6': { x: 52, y: 82 },
+  'C7': { x: 60, y: 82 },
+  'C8': { x: 68, y: 82 },
+  'C9': { x: 76, y: 82 },
+  'C10': { x: 84, y: 82 },
 };
 
 const SeatTile: React.FC<{
