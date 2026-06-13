@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useSeat } from '../contexts/SeatContext';
+import { useDemoMode } from '../contexts/DemoContext';
 import { LibraryMap } from '../components/LibraryMap';
 import { LiveActivityFeed } from '../components/LiveActivityFeed';
 import { WaitlistPanel } from '../components/WaitlistPanel';
@@ -75,6 +76,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 export const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
   const { seats, logs, waitlist, refreshAll } = useSeat();
+  const { isDemoMode, toggleDemoMode } = useDemoMode();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -131,6 +133,18 @@ export const AdminDashboard: React.FC = () => {
           </div>
 
           <div style={{ display: 'flex', gap: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '0 16px', background: 'rgba(255,255,255,0.02)', borderRadius: 6, border: '1px solid rgba(255,255,255,0.05)' }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: isDemoMode ? '#f59e0b' : '#64748b' }}>Demo Mode</span>
+              <div 
+                onClick={() => {
+                  toggleDemoMode();
+                  window.location.reload();
+                }}
+                style={{ width: 40, height: 20, borderRadius: 10, background: isDemoMode ? '#f59e0b' : 'rgba(255,255,255,0.1)', position: 'relative', cursor: 'pointer', transition: 'background 0.3s' }}
+              >
+                <div style={{ position: 'absolute', top: 2, left: isDemoMode ? 22 : 2, width: 16, height: 16, borderRadius: '50%', background: '#fff', transition: 'left 0.3s', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }} />
+              </div>
+            </div>
             <button onClick={refreshAll} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', borderRadius: 6, background: '#1e293b', border: '1px solid #334155', color: '#e2e8f0', fontSize: 13, fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s' }} onMouseOver={e => e.currentTarget.style.background = '#334155'} onMouseOut={e => e.currentTarget.style.background = '#1e293b'}>
               <RefreshCw size={14} /> Refresh Data
             </button>

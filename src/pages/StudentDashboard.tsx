@@ -25,7 +25,7 @@ function formatDuration(ms: number): string {
 export const StudentDashboard: React.FC = () => {
   const { user, logout } = useAuth();
   const { seats, myActiveSeat, setAway, setReturn, checkOut, waitlist, leaveWaitlist, joinWaitlist, checkIn, showStillHerePrompt, confirmStillHere } = useSeat();
-  const { awayTimeoutMs, waitlistTimeoutMs, stillHereGraceMs } = useDemoMode();
+  const { isDemoMode, toggleDemoMode, awayTimeoutMs, waitlistTimeoutMs, stillHereGraceMs } = useDemoMode();
   const navigate = useNavigate();
 
   const [sessionDuration, setSessionDuration] = useState(0);
@@ -170,7 +170,21 @@ export const StudentDashboard: React.FC = () => {
           </div>
 
           <div className="companion-card card-lift" style={{ display: 'flex', alignItems: 'center', padding: '6px 8px', borderRadius: 99 }}>
-            <button onClick={handleLogout} style={{ background: 'transparent', border: 'none', padding: '10px 20px', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '0 16px' }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: isDemoMode ? '#f59e0b' : '#64748b' }}>Demo Mode</span>
+              <div 
+                onClick={() => {
+                  toggleDemoMode();
+                  // Force a hard reload so intervals restart with new timings
+                  window.location.reload();
+                }}
+                style={{ width: 40, height: 20, borderRadius: 10, background: isDemoMode ? '#f59e0b' : 'rgba(255,255,255,0.1)', position: 'relative', cursor: 'pointer', transition: 'background 0.3s' }}
+              >
+                <div style={{ position: 'absolute', top: 2, left: isDemoMode ? 22 : 2, width: 16, height: 16, borderRadius: '50%', background: '#fff', transition: 'left 0.3s', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }} />
+              </div>
+            </div>
+            <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,0.1)', margin: '0 8px' }} />
+            <button onClick={handleLogout} style={{ background: 'transparent', border: 'none', padding: '10px 16px', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
               <LogOut size={16} /> Logout
             </button>
           </div>
