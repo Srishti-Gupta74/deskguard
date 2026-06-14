@@ -16,8 +16,6 @@ npm run dev
 
 Then open **http://localhost:5173** in your browser.
 
-> **No Supabase setup required!** The app works fully out of the box using `localStorage` as a mock database.
-
 ---
 
 ## 🔐 Login Credentials
@@ -41,7 +39,7 @@ Then open **http://localhost:5173** in your browser.
 | **QR Check-In** | Real QR codes per seat linking to `/seat/A1` etc. |
 | **Live Library Map** | SVG map with 30 seats across 3 zones, real-time color updates |
 | **Away Mode** | 20-min timer (20 seconds in Demo Mode) |
-| **Still Here System** | Prompt every 2 hours (2 min in Demo Mode), auto-releases if ignored |
+| **Still Here System** | Prompt every 2 hours (60 seconds in Demo Mode), auto-releases if ignored |
 | **Auto-Release** | Seats returned automatically on timer expiry |
 | **Waitlist** | FCFS queue with automatic seat assignment on release |
 | **Heatmap** | Usage intensity overlay on the library map |
@@ -87,16 +85,16 @@ Then open **http://localhost:5173** in your browser.
 - **Charts**: Recharts
 - **QR Codes**: qrcode.react
 - **Icons**: Lucide React
-- **Storage**: localStorage (mock, works instantly) or Supabase (see below)
+- **Storage**: PostgreSQL via Supabase + Real-time WebSockets
 
 ---
 
-## 🗄️ Supabase Setup (Optional)
+## 🗄️ Supabase Setup
 
-To use a real PostgreSQL backend:
+To set up the live PostgreSQL backend:
 
 1. Create a project at [supabase.com](https://supabase.com)
-2. Run `supabase/schema.sql` in the Supabase SQL Editor
+2. Run the `supabase_schema.sql` code in the Supabase SQL Editor and click **Run without RLS**.
 3. Copy `.env.example` to `.env.local` and fill in your values:
 
 ```env
@@ -126,7 +124,8 @@ Output is in the `dist/` folder — deploy to Vercel, Netlify, or any static hos
 src/
 ├── types/          # Shared TypeScript types
 ├── lib/
-│   └── mockDb.ts   # localStorage mock database with event emitter
+│   ├── db.ts           # Supabase client and database operations
+│   └── supabase.ts     # Supabase initialization
 ├── contexts/
 │   ├── DemoContext.tsx   # Demo mode timer acceleration
 │   ├── AuthContext.tsx   # Student + Admin authentication
