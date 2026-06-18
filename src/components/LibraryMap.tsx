@@ -79,7 +79,9 @@ const SeatTile: React.FC<{
   seat: Seat;
   isMyActiveSeat: boolean;
   onClick: (e: React.MouseEvent) => void;
-}> = ({ seat, isMyActiveSeat, onClick }) => {
+  adminMode?: boolean;
+  onRelease?: (e: React.MouseEvent) => void;
+}> = ({ seat, isMyActiveSeat, onClick, adminMode, onRelease }) => {
   const [hovered, setHovered] = useState(false);
   const layout = SPATIAL_LAYOUT[seat.seat_code] || { x: 0, y: 0 };
   const cfg = STATUS_CONFIG[seat.status];
@@ -164,6 +166,29 @@ const SeatTile: React.FC<{
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: '#cbd5e1', fontWeight: 500 }}>
                 <Zap size={12} /> Power Outlet
               </div>
+              
+              {adminMode && (seat.status === 'occupied' || seat.status === 'away') && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (onRelease) onRelease(e);
+                  }}
+                  style={{
+                    marginTop: 8,
+                    padding: '6px 12px',
+                    borderRadius: 6,
+                    background: '#ef4444',
+                    border: 'none',
+                    color: '#fff',
+                    fontSize: 12,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    width: '100%'
+                  }}
+                >
+                  Force Release
+                </button>
+              )}
             </div>
           </motion.div>
         )}
@@ -180,6 +205,7 @@ export const LibraryMap: React.FC<LibraryMapProps> = ({
   const [isMapHovered, setIsMapHovered] = useState(false);
   const [selectedSeatCode, setSelectedSeatCode] = useState<string | null>(null);
   const [localFilter, setLocalFilter] = useState<'all' | 'window' | 'power' | 'quiet'>('all');
+  const { adminRelease } = useSeat();
 
   const handleSeatClick = (e: React.MouseEvent, seat: Seat) => {
     e.stopPropagation(); // prevent clicking map background from immediately closing it
@@ -327,6 +353,8 @@ export const LibraryMap: React.FC<LibraryMapProps> = ({
                 seat={seat}
                 isMyActiveSeat={myActiveSeat?.id === seat.id || isSelected}
                 onClick={(e) => handleSeatClick(e, seat)}
+                adminMode={adminMode}
+                onRelease={() => adminRelease(seat.id, seat.seat_code)}
               />
             </div>
           );
