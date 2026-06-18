@@ -205,7 +205,7 @@ export const AdminDashboard: React.FC = () => {
         <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: 24 }}>
           <PanelTitle title="Operations Floor Map" icon={<MapPin size={16} style={{ color: '#94a3b8' }} />} />
           <div style={{ position: 'relative', height: 450 }}>
-            <LibraryMap />
+            <LibraryMap adminMode={true} />
           </div>
         </div>
 
