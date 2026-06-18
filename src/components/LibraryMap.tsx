@@ -148,7 +148,7 @@ const SeatTile: React.FC<{
               backdropFilter: 'blur(10px)',
               boxShadow: '0 12px 40px rgba(0,0,0,0.8), 0 0 20px rgba(168, 85, 247, 0.2)',
               marginTop: 10,
-              pointerEvents: 'none'
+              pointerEvents: 'auto'
             }}
           >
             <div style={{ fontSize: 14, fontWeight: 900, color: '#f8fafc', marginBottom: 6 }}>Desk {seat.seat_code}</div>
